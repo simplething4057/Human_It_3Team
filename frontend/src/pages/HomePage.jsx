@@ -47,7 +47,7 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Hero Slider */}
+      {/* Main Slider */}
       <section className="relative h-[650px]">
         <Swiper
           spaceBetween={0}
@@ -89,40 +89,7 @@ export default function HomePage() {
           </SwiperSlide>
         </Swiper>
       </section>
-
-      {/* Features */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">CareLink의 핵심 기능</h2>
-            <div className="w-20 h-1 bg-teal-500 mx-auto rounded-full"></div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="p-8 rounded-2xl bg-teal-50 border border-teal-100 text-center">
-              <div className="w-16 h-16 bg-teal-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <ShieldCheck className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold mb-4">AI 건강 분석</h3>
-              <p className="text-slate-600">복잡한 검진 수치를 AI가 분석하여 이해하기 쉬운 리포트로 제공합니다.</p>
-            </div>
-            <div className="p-8 rounded-2xl bg-teal-50 border border-teal-100 text-center">
-              <div className="w-16 h-16 bg-teal-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Activity className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold mb-4">맞춤형 액션 플랜</h3>
-              <p className="text-slate-600">당신의 건강 상태에 최적화된 식단과 운동 가이드를 매일 제공합니다.</p>
-            </div>
-            <div className="p-8 rounded-2xl bg-teal-50 border border-teal-100 text-center">
-              <div className="w-16 h-16 bg-teal-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <MessageSquare className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold mb-4">AI 건강 챗봇</h3>
-              <p className="text-slate-600">궁금한 건강 질문을 언제든 AI 챗봇에게 물어보고 즉시 답변을 받으세요.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      
       {/* Reviews */}
       <section className="py-24 bg-[#f9f7f0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -146,6 +113,51 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Video */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* Section Title */}
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
+              건강 비디오
+            </h2>
+            <div className="w-20 h-1 bg-teal-500 mx-auto rounded-full"></div>
+          </div>
+
+          {/* Content */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+
+            {/* Video */}
+            <div className="aspect-video rounded-xl overflow-hidden shadow-xl">
+              <iframe
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/VIDEO_ID"
+                title="CareLink Demo"
+                allowFullScreen
+              ></iframe>
+            </div>
+
+            {/* Description */}
+            <div>
+              <p className="text-lg text-slate-600 mb-6 leading-relaxed">
+                의료 전문가가 엄선하고 데이터 기반 분석을 통해 제공되는
+                최신 헬스케어 정보를 확인하세요.
+                귀하만의 건강검진 트렌드를 바탕으로 라이프 스타일을
+                개선하는 방법을 알아보세요.
+              </p>
+
+              <ul className="space-y-4 text-slate-700 font-medium">
+                <li>✔ 맞춤형 영양 가이드</li>
+                <li>✔ 장수를 위한 활동 추천</li>
+              </ul>
+            </div>
+
+          </div>
+
         </div>
       </section>
 
