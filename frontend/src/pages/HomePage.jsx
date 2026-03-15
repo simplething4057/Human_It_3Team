@@ -235,9 +235,7 @@ export default function HomePage() {
                 <p>서울특별시 디지털밸리 헬스이노베이션로 123</p>
                 <p>전화: 02-1234-5678 | 이메일: support@carelink.health</p>
               </div>
-              <Link to="/policy" className="hover:text-teal-600 transition-colors">이용약관</Link>
-              <Link to="/policy" className="hover:text-teal-600 transition-colors ml-4">개인정보처리방침</Link>
-            </div>
+              </div>
             <div>
               <h3 className="text-2xl font-extrabold mb-8 text-slate-900">문의하기</h3>
               <form className="space-y-4">
@@ -252,9 +250,17 @@ export default function HomePage() {
               </form>
             </div>
           </div>
-          <div className="pt-8 border-t border-slate-100 text-center text-slate-400 text-sm font-medium">
-            <p>© Copyright 2026 CareLink Healthcare - All Rights Reserved</p>
+          <div className="pt-8 border-t border-slate-100 flex flex-col items-center gap-3 text-slate-400 text-sm font-medium">
+          <div className="flex gap-6">
+            <Link to="/policy/terms" className="hover:text-teal-600 transition-colors">
+              이용약관
+            </Link>
+            <Link to="/policy/privacy" className="hover:text-teal-600 transition-colors">
+              개인정보처리방침
+            </Link>
           </div>
+          <p>© Copyright 2026 CareLink Healthcare - All Rights Reserved</p>
+        </div>
         </div>
       </footer>
     </div>

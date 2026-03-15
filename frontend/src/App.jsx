@@ -50,7 +50,8 @@ function App() {
               <ActionPlanPage />
             </ProtectedRoute>
           } />
-          <Route path="/policy" element={<Policy />} />
+          <Route path="/policy/terms" element={<Policy />} />
+          <Route path="/policy/privacy" element={<Policy />} />
         </Routes>
       </Router>
     </AuthProvider>
