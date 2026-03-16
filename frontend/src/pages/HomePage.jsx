@@ -47,80 +47,107 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Hero Slider */}
+      {/* Main Slider */}
       <section className="relative h-[650px]">
         <Swiper
           spaceBetween={0}
           centeredSlides={true}
-          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          autoplay={{ delay: 8000, disableOnInteraction: false }}
           pagination={{ clickable: true }}
           navigation={true}
           modules={[Autoplay, Pagination, Navigation]}
           className="h-full"
         >
+          {/* Slide 1 - 서비스 소개 */}
           <SwiperSlide>
             <div className="relative h-full flex items-center justify-center text-white bg-[url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center">
               <div className="absolute inset-0 bg-slate-900/60" />
-              <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
-                <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-tight drop-shadow-lg">
-                  CareLink - AI가 건강검진 <br className="hidden md:block" /> 결과를 쉽게 해석해드립니다
+              <div className="max-w-5xl mx-auto text-center px-4 relative z-10">
+                <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+                  CareLink
+                  {/*AI 기반 개인 건강 관리 플랫폼*/}
                 </h1>
-                <p className="text-lg md:text-xl text-slate-100 mb-10 max-w-2xl mx-auto font-medium drop-shadow-md">
-                  복잡한 의료 데이터를 AI 분석을 통해 명확하고 실행 가능한 인사이트로 변환하세요.
+                <p className="text-lg md:text-xl text-slate-100 max-w-5xl mx-auto">
+                  <br /> CareLink는 건강검진 데이터를 분석하여
+                  사용자가 자신의 건강 상태를 쉽게 이해하고 <br />
+                  지속적으로 관리할 수 있도록 돕는 스마트 헬스케어 서비스입니다.
                 </p>
-                <Link to={isAuthenticated ? "/upload" : "/signup"} className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white px-8 py-4 rounded-full text-lg font-bold transition-all transform hover:scale-105 shadow-xl">
-                  지금 분석 시작하기 <ArrowRight className="w-5 h-5" />
-                </Link>
               </div>
             </div>
           </SwiperSlide>
+          {/* Slide 2 - 문제 제기 */}
           <SwiperSlide>
-            <div className="relative h-full flex items-center justify-center text-white bg-[url('https://images.unsplash.com/photo-1505751172107-573957a243b0?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center">
+            <div className="relative h-full flex items-center justify-center text-white bg-[url('https://69b57d62d7351016cf21b33e.imgix.net/download/markus-spiske-XrIfY_4cK1w-unsplash.jpg?w=3500&h=2333')] bg-cover bg-center">
               <div className="absolute inset-0 bg-slate-900/60" />
-              <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
-                <h1 className="text-4xl md:text-6xl font-extrabold mb-6 tracking-tight leading-tight">
-                  개인 맞춤형 <br /> 건강 관리 솔루션
+              <div className="max-w-6xl mx-auto text-center px-4 relative z-10">
+                <h1 className="text-4xl md:text-6xl font-extrabold mb-6">
+                  건강검진 결과, 제대로 이해하고 계신가요?
                 </h1>
-                <p className="text-lg md:text-xl text-slate-100 mb-10 max-w-2xl mx-auto font-medium">
-                  당신의 건강 지표에 맞춘 식단과 운동 계획을 AI가 제안합니다.
+                <p className="text-lg md:text-xl text-slate-100 max-w-5xl mx-auto">
+                  <br /> 건강검진 결과표는 대부분 전문 의학 용어와 수치 중심으로 작성되어 <br />
+                  일반 사용자가 자신의 건강 상태를 정확히 이해하기 어렵습니다. <br /><br />
+                  그 결과 관리가 필요한 신호를 놓치기도 합니다.
                 </p>
+              </div>
+            </div>
+          </SwiperSlide>
+          {/* Slide 3 - AI 분석 */}
+          <SwiperSlide>
+            <div className="relative h-full flex items-center justify-center text-white bg-[url('https://images.unsplash.com/photo-1581595219315-a187dd40c322?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center">
+              <div className="absolute inset-0 bg-slate-900/60" />
+              <div className="max-w-5xl mx-auto text-center px-4 relative z-10">
+                <h1 className="text-4xl md:text-6xl font-extrabold mb-6">
+                  AI가 건강 데이터를 분석합니다
+                </h1>
+                <p className="text-lg md:text-xl text-slate-100 max-w-5xl mx-auto">
+                  <br /> CareLink는 건강검진 데이터를 AI로 분석하여
+                  대사증후군 주요 지표와 건강 위험 요소를 파악하고 <br />
+                  사용자가 이해하기 쉬운 형태로 건강 상태를 설명합니다.
+                </p>
+              </div>
+            </div>
+          </SwiperSlide>
+          {/* Slide 4 - 맞춤 관리 */}
+          <SwiperSlide>
+            <div className="relative h-full flex items-center justify-center text-white bg-[url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center">
+              <div className="absolute inset-0 bg-slate-900/60" />
+              <div className="max-w-5xl mx-auto text-center px-4 relative z-10">
+                <h1 className="text-4xl md:text-6xl font-extrabold mb-6">
+                  당신에게 맞는 건강 관리 방법
+                </h1>
+                <p className="text-lg md:text-xl text-slate-100 max-w-5xl mx-auto">
+                  <br /> CareLink는 개인의 건강 데이터를 기반으로  
+                  맞춤형 식단, 운동, 생활습관 개선 가이드를 제공합니다. <br /><br />
+                  지속적인 건강 관리와 변화를 함께 만들어갑니다.
+                </p>
+              </div>
+            </div>
+          </SwiperSlide>
+          {/* Slide 5 - 서비스 시작 CTA */}
+          <SwiperSlide>
+            <div className="relative h-full flex items-center justify-center text-white bg-[url('https://69b57d62d7351016cf21b33e.imgix.net/pexels-karola-g-5206922.jpg?w=6720&h=4480')] bg-cover bg-center">
+              <div className="absolute inset-0 bg-slate-900/60" />
+              <div className="max-w-5xl mx-auto text-center px-4 relative z-10">
+                <h1 className="text-4xl md:text-6xl font-extrabold mb-6">
+                  지금 나의 건강 상태를 확인해보세요
+                </h1>
+                <p className="text-lg md:text-xl text-slate-100 mb-10 max-w-5xl mx-auto">
+                  <br /> 건강검진 결과를 업로드하면  
+                  AI가 건강 상태를 분석하고 맞춤형 건강 관리 가이드를 제공합니다. <br />
+                  지금 CareLink와 함께 건강 관리를 시작해보세요.
+                </p>
+                <div className="flex justify-center gap-4 flex-wrap">
+                  <Link
+                    to={isAuthenticated ? "/upload" : "/signup"}
+                    className="bg-teal-500 text-white px-8 py-4 rounded-full font-bold hover:bg-teal-600 transition-all shadow-lg"
+                  >
+                    건강 분석 시작하기
+                  </Link>
+                </div>
               </div>
             </div>
           </SwiperSlide>
         </Swiper>
-      </section>
-
-      {/* Features */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">CareLink의 핵심 기능</h2>
-            <div className="w-20 h-1 bg-teal-500 mx-auto rounded-full"></div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            <div className="p-8 rounded-2xl bg-teal-50 border border-teal-100 text-center">
-              <div className="w-16 h-16 bg-teal-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <ShieldCheck className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold mb-4">AI 건강 분석</h3>
-              <p className="text-slate-600">복잡한 검진 수치를 AI가 분석하여 이해하기 쉬운 리포트로 제공합니다.</p>
-            </div>
-            <div className="p-8 rounded-2xl bg-teal-50 border border-teal-100 text-center">
-              <div className="w-16 h-16 bg-teal-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Activity className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold mb-4">맞춤형 액션 플랜</h3>
-              <p className="text-slate-600">당신의 건강 상태에 최적화된 식단과 운동 가이드를 매일 제공합니다.</p>
-            </div>
-            <div className="p-8 rounded-2xl bg-teal-50 border border-teal-100 text-center">
-              <div className="w-16 h-16 bg-teal-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <MessageSquare className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold mb-4">AI 건강 챗봇</h3>
-              <p className="text-slate-600">궁금한 건강 질문을 언제든 AI 챗봇에게 물어보고 즉시 답변을 받으세요.</p>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* Reviews */}
@@ -149,6 +176,51 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Video */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Section Title */}
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
+              오늘의 건강 인사이트
+            </h2>
+            <div className="w-20 h-1 bg-teal-500 mx-auto rounded-full"></div>
+          </div>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Video */}
+            <div className="aspect-video rounded-xl overflow-hidden shadow-xl">
+              <iframe
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/yHY5bhh9JLk?si=at7MAVHObW7zx-uZ"
+                title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+              </iframe>
+            </div>
+            <div>
+              <p className="text-lg text-slate-600 mb-6 leading-relaxed">
+                건강은 작은 생활 습관에서 시작됩니다.
+                영상에서 소개하는 건강 관리 방법을 확인하고,
+                CareLink에서 제공하는 개인 맞춤 건강 관리 팁도 함께 확인해보세요.
+              </p>
+              <ul className="space-y-4 text-slate-700 font-medium">
+                <li>✓ 건강검진 데이터 기반 건강 분석</li>
+                <li>✓ 개인 맞춤형 영양 가이드</li>
+                <li>✓ 생활습관 개선 추천</li>
+              </ul>
+              <Link
+                to={isAuthenticated ? "/upload" : "/login"}
+                className="inline-flex items-center mt-8 bg-teal-500 hover:bg-teal-600 text-white px-6 py-3 rounded-lg font-bold transition-all hover:scale-105 shadow-md"
+              >
+                맞춤형 분석 해보기 &gt;
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-white border-t border-orange-100 text-slate-800 py-16 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -158,16 +230,12 @@ export default function HomePage() {
                 <Heart className="w-10 h-10 fill-current" />
                 CareLink
               </div>
-              <div className="flex flex-wrap gap-8 text-slate-600 font-bold mb-8">
-                <a href="#" className="hover:text-teal-600 transition-colors">이용약관</a>
-                <a href="#" className="hover:text-teal-600 transition-colors">개인정보처리방침</a>
-              </div>
               <div className="space-y-4 text-slate-500 text-sm font-medium">
                 <p>(주)케어링크 헬스케어 서비스</p>
-                <p>서울특별시 디지털밸리 헬스이노베이션로 123</p>
+                <p>경기 수원시 팔달구 중부대로 100 4층</p>
                 <p>전화: 02-1234-5678 | 이메일: support@carelink.health</p>
               </div>
-            </div>
+              </div>
             <div>
               <h3 className="text-2xl font-extrabold mb-8 text-slate-900">문의하기</h3>
               <form className="space-y-4">
@@ -182,9 +250,17 @@ export default function HomePage() {
               </form>
             </div>
           </div>
-          <div className="pt-8 border-t border-slate-100 text-center text-slate-400 text-sm font-medium">
-            <p>© Copyright 2026 CareLink Healthcare - All Rights Reserved</p>
+          <div className="pt-8 border-t border-slate-100 flex flex-col items-center gap-3 text-slate-400 text-sm font-medium">
+          <div className="flex gap-6">
+            <Link to="/policy/terms" className="hover:text-teal-600 transition-colors">
+              이용약관
+            </Link>
+            <Link to="/policy/privacy" className="hover:text-teal-600 transition-colors">
+              개인정보처리방침
+            </Link>
           </div>
+          <p>© Copyright 2026 CareLink Healthcare - All Rights Reserved</p>
+        </div>
         </div>
       </footer>
     </div>
