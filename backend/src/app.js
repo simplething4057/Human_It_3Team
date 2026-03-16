@@ -21,7 +21,7 @@ app.use((req, res, next) => {
     if (Buffer.isBuffer(req.body)) {
         try {
             req.body = JSON.parse(req.body.toString('utf8'));
-        } catch (e) {}
+        } catch (e) { }
     }
 
     // 2. Heavy-duty reconstruction for serverless indexed bodies
@@ -51,14 +51,14 @@ app.use((req, res, next) => {
                 eventBody = Buffer.from(eventBody, 'base64').toString('utf8');
             }
             if (eventBody) req.body = JSON.parse(eventBody);
-        } catch (e) {}
+        } catch (e) { }
     }
 
     // 4. Force string-to-json if it ended up as a string
     if (typeof req.body === 'string') {
         try {
             req.body = JSON.parse(req.body);
-        } catch (e) {}
+        } catch (e) { }
     }
 
     next();
@@ -88,13 +88,13 @@ app.get('/.netlify/functions/api/debug-db', async (req, res) => {
     try {
         const [rows] = await dbConfig.query('SELECT current_database(), current_user');
         const [userList] = await dbConfig.query('SELECT email, LENGTH(email) as len, email_verified, name FROM users LIMIT 5');
-        
+
         // Simulation of login query
         const testEmail = 'test@test.com';
         const [sim] = await dbConfig.query('SELECT * FROM users WHERE LOWER(TRIM(email)) = LOWER(?)', [testEmail]);
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             isPostgres: dbConfig.isPostgres,
             info: rows[0],
             users: userList,
@@ -106,8 +106,8 @@ app.get('/.netlify/functions/api/debug-db', async (req, res) => {
             has_db_url: !!process.env.DATABASE_URL
         });
     } catch (err) {
-        res.status(500).json({ 
-            success: false, 
+        res.status(500).json({
+            success: false,
             error: err.message,
             stack: err.stack,
             has_db_url: !!process.env.DATABASE_URL,
