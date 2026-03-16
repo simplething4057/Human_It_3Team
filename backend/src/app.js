@@ -38,12 +38,21 @@ app.get('/.netlify/functions/api/debug-db', async (req, res) => {
     try {
         const [rows] = await dbConfig.query('SELECT current_database(), current_user');
         const [userList] = await dbConfig.query('SELECT email, LENGTH(email) as len, email_verified, name FROM users LIMIT 5');
+        
+        // Simulation of login query
+        const testEmail = 'test@test.com';
+        const [sim] = await dbConfig.query('SELECT * FROM users WHERE LOWER(TRIM(email)) = LOWER(?)', [testEmail]);
+
         res.json({ 
             success: true, 
             isPostgres: dbConfig.isPostgres,
             info: rows[0],
             users: userList,
-            hint: "Check 'len' - it should be 13 for 'test@test.com'",
+            login_sim: {
+                target: testEmail,
+                found: sim.length > 0,
+                user: sim[0] ? { email: sim[0].email, verified: sim[0].email_verified } : null
+            },
             has_db_url: !!process.env.DATABASE_URL
         });
     } catch (err) {

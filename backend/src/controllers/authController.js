@@ -98,14 +98,17 @@ exports.login = async (req, res) => {
     const email = req.body.email ? req.body.email.trim().toLowerCase() : '';
 
     try {
-        // Use TRIM and LOWER for maximum robustness
+        // Revert to '?' which is handled by our db.js adapter for maximum consistency
         const [users] = await pool.query(
-            'SELECT * FROM users WHERE LOWER(TRIM(email)) = $1', 
+            'SELECT * FROM users WHERE LOWER(TRIM(email)) = LOWER(?)', 
             [email]
         );
         
         if (users.length === 0) {
-            return res.status(400).json({ success: false, message: '가입되지 않은 이메일입니다.' });
+            return res.status(400).json({ 
+                success: false, 
+                message: `가입되지 않은 이메일입니다. (입력길이: ${email.length})` 
+            });
         }
 
         if (!users[0].email_verified) {
