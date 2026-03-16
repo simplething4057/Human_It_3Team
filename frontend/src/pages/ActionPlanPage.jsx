@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { CheckCircle2, Circle, Trophy, Flame, Target, BookOpen, Utensils, Footprints, Loader2, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
