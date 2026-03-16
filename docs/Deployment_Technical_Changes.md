@@ -26,6 +26,7 @@
 ### 서버리스 어댑터 (`backend/functions/api.js` & `app.js`)
 - `serverless-http`를 사용하여 Express 앱을 Netlify Functions 핸들러로 변환했습니다.
 - **라우팅 접두어 처리**: Netlify 환경에서 붙는 `/.netlify/functions/api` 접두어를 Express 라우터가 유연하게 인식하도록 `app.js`의 라우팅 구조를 개선했습니다.
+- **서버리스 바디 파서 보강**: 특정 서버리스 환경에서 `req.body`가 유실되는 현상을 막기 위해 `express.json()` 외에 `req.rawBody`를 직접 파싱하는 Fallback 미들웨어를 추가했습니다.
 
 ### 종속성 관리 (Dependencies)
 - **Root `package.json` 도입**: Netlify의 빌드 시스템(esbuild)이 백엔드 라이브러리(`express`, `pg` 등)를 인식할 수 있도록 프로젝트 루트에 백엔드 종속성이 포함된 `package.json`을 명시적으로 생성했습니다.

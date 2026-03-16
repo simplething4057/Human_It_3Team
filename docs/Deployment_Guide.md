@@ -59,5 +59,9 @@
 **원인**: 수파베이스의 IPv6 주소를 IPv4 환경에서 찾지 못함.
 **해결**: 주소 형식을 `pooler.supabase.com:6543`으로 교체.
 
+### 3. 로그인 에러: `가입되지 않은 이메일 (입력길이: 0)`
+**원인**: Netlify Functions 환경에서 클라이언트 JSON 데이터가 파싱되지 않고 유실됨.
+**해결**: `app.js`에 서버리스 전용 Body Parser Fallback 로직을 추가하고 Axios의 `Content-Type`을 명시함.
+
 ---
 © 2026 CareLink Dev Team
