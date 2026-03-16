@@ -13,21 +13,25 @@ import ActionPlanCard from '../components/dashboard/ActionPlanCard';
 import QuickMenu from '../components/dashboard/QuickMenu';
 
 export default function MyPage() {
-    const { user, logout } = useAuth();
-    const [loading, setLoading] = useState(true);
-    const [reportData, setReportData] = useState(null);
-    const [history, setHistory] = useState([]);
-    const [availableYears, setAvailableYears] = useState([]);
-    const [selectedYear, setSelectedYear] = useState(null);
+    // 상태 관리 (State Management)
+    const { user, logout } = useAuth(); // 인증 정보 및 로그아웃 함수
+    const [loading, setLoading] = useState(true); // 로딩 상태
+    const [reportData, setReportData] = useState(null); // 검진 리포트 데이터
+    const [history, setHistory] = useState([]); // 건강 점수 히스토리
+    const [availableYears, setAvailableYears] = useState([]); // 조회 가능한 연도 목록
+    const [selectedYear, setSelectedYear] = useState(null); // 현재 선택된 연도
 
+    // 컴포넌트 마운트 시 초기 데이터 로드 (mount point)
     useEffect(() => {
         fetchInitialData();
     }, []);
 
+    // 초기 데이터(연도 목록 등)를 가져오는 비동기 함수
     const fetchInitialData = async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('carelink_token');
+            // 사용 가능한 검진 연도 목록 API 호출
             const yearsRes = await axios.get('http://localhost:5000/api/reports/years', {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -37,10 +41,11 @@ export default function MyPage() {
                 setAvailableYears(years);
 
                 if (years.length > 0) {
+                    // 최신 연도의 리포트 데이터를 우선적으로 호출
                     await fetchReport(years[0]);
                     setSelectedYear(years[0]);
                     
-                    // Mock history data based on years
+                    // 연도별 점수 히스토리 생성 (데이터 시뮬레이션을 위한 임시 로직)
                     const mockHistory = years.map((y, i) => ({
                         date: `${y}년`,
                         score: 80 + Math.floor(Math.random() * 15)
@@ -55,6 +60,7 @@ export default function MyPage() {
         }
     };
 
+    // 특정 연도의 상세 건강 리포트 데이터를 호출하는 함수
     const fetchReport = async (year) => {
         try {
             const token = localStorage.getItem('carelink_token');
@@ -69,6 +75,7 @@ export default function MyPage() {
         }
     };
 
+    // 화면 로딩 중일 때 표시되는 컴포넌트
     if (loading && !reportData) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#f9f7f0]">
@@ -82,7 +89,7 @@ export default function MyPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-[#f9f7f0]">
-            {/* Top Navigation Bar */}
+            {/* 상단 내비게이션 바: 로고, 메뉴, 로그아웃 버튼 포함 */}
             <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-orange-100 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-20">
@@ -107,8 +114,9 @@ export default function MyPage() {
                 </div>
             </nav>
 
-            {/* Content Header */}
+            {/* 메인 본문 영역 */}
             <div className="max-w-7xl mx-auto w-full px-6 md:px-12 pt-12">
+                {/* 헤더 섹션: 타이틀 및 유저 인사말 */}
                 <header className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 text-center md:text-left">
                     <div>
                         <h1 className="text-3xl font-black text-slate-900 tracking-tight">마이페이지</h1>
@@ -118,6 +126,7 @@ export default function MyPage() {
                 </header>
 
                 {!reportData ? (
+                    // 데이터가 없을 때 표시되는 섹션 (Empty State)
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -135,8 +144,9 @@ export default function MyPage() {
                         </Link>
                     </motion.div>
                 ) : (
+                    // 리포트 데이터가 있을 때의 대시보드 레이아웃
                     <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-8 pb-16 items-start">
-                        {/* Row 1 Full Width: AI Summary */}
+                        {/* AI 요약 섹션: 그리드 2열을 모두 차지 */}
                         <motion.div 
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -149,7 +159,7 @@ export default function MyPage() {
                             </p>
                         </motion.div>
 
-                        {/* Row 2: Health Score & Report Card */}
+                        {/* 건강 점수 및 리포트 카드 섹션 */}
                         <div className="h-[450px]">
                             <HealthScoreCard 
                                 score={reportData?.healthRecord?.health_score || 0} 
@@ -161,7 +171,7 @@ export default function MyPage() {
                             <HealthReportCard />
                         </div>
 
-                        {/* Row 3: Health Trend & Action Plan */}
+                        {/* 건강 트렌드 및 액션 플랜 섹션 */}
                         <div className="h-[350px]">
                             <HealthTrendChart history={history} />
                         </div>
@@ -172,7 +182,7 @@ export default function MyPage() {
                 )}
             </div>
 
-            {/* Footer mirroring HomePage */}
+            {/* 하단 푸터 영역: 카피라이트 및 버전 정보 */}
             <footer className="max-w-7xl mx-auto w-full mt-auto mb-12 px-6 md:px-12 pt-8 border-t border-orange-100 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400 uppercase tracking-widest font-bold">
                 <span>CareLink Health Analytics v2.0</span>
                 <span>© 2026 CareLink Systems. All Rights Reserved.</span>
