@@ -55,7 +55,7 @@ exports.verifyOTP = async (req, res) => {
             return res.status(400).json({ success: false, message: '인증코드가 틀렸거나 만료되었습니다.' });
         }
 
-        await pool.query('UPDATE users SET email_verified = 1, email_change_token = NULL, email_token_expires = NULL WHERE email = ?', [email]);
+        await pool.query('UPDATE users SET email_verified = true, email_change_token = NULL, email_token_expires = NULL WHERE email = ?', [email]);
 
         return res.json({ success: true, message: '이메일 인증이 완료되었습니다.' });
     } catch (err) {
@@ -107,10 +107,15 @@ exports.login = async (req, res) => {
             return res.status(400).json({ success: false, message: '이메일 또는 비밀번호가 틀렸습니다.' });
         }
 
+        if (!process.env.JWT_SECRET) {
+            console.error('JWT_SECRET is not defined in environment variables!');
+            return res.status(500).json({ success: false, message: '인증 서버 설정 오류 (JWT_SECRET 누락)' });
+        }
+
         const token = jwt.sign(
             { id: user.id, email: user.email },
             process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '24h' }
         );
 
         return res.json({

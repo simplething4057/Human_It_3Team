@@ -46,21 +46,27 @@ const query = async (sql, params = []) => {
             pgSql = pgSql.replace('?', `$${i++}`);
         }
 
-        // 3. Automated RETURNING clause for INSERT if insertId might be needed
-        if (pgSql.trim().toUpperCase().startsWith('INSERT INTO') && !pgSql.toUpperCase().includes('RETURNING')) {
+        // 3. Automated RETURNING clause for INSERT
+        pgSql = pgSql.trim();
+        if (pgSql.endsWith(';')) pgSql = pgSql.slice(0, -1);
+        
+        if (pgSql.toUpperCase().startsWith('INSERT INTO') && !pgSql.toUpperCase().includes('RETURNING')) {
             pgSql += ' RETURNING id';
         }
 
         try {
             const { rows } = await pool.query(pgSql, params);
             
-            // Mimic mysql2 result structure
-            const mockResult = rows.length > 0 ? rows : [];
-            mockResult.insertId = rows.length > 0 ? rows[0].id : null;
+            // Mimic mysql2 result structure: [rows, fields]
+            const mockRows = rows.map(row => ({ ...row }));
+            mockRows.insertId = rows.length > 0 ? (rows[0].id || rows[0].insertid) : null;
             
-            return [mockResult];
+            return [mockRows];
         } catch (err) {
-            console.error('PG Query Error:', err.message, '| SQL:', pgSql);
+            console.error('--- Database Query Error (PostgreSQL) ---');
+            console.error('Error:', err.message);
+            console.error('SQL:', pgSql);
+            console.error('Params:', JSON.stringify(params));
             throw err;
         }
     } else {

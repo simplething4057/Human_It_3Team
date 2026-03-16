@@ -90,13 +90,13 @@ CREATE TABLE IF NOT EXISTS action_plans (
   id BIGSERIAL PRIMARY KEY,
   user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   health_data_id BIGINT NOT NULL REFERENCES health_data(id) ON DELETE CASCADE,
-  exam_year INT NOT NULL,
+  
+  category VARCHAR(20) NOT NULL,
+  title VARCHAR(100) NOT NULL,
+  content TEXT NOT NULL,
+  difficulty VARCHAR(10) DEFAULT 'medium',
+  is_completed BOOLEAN DEFAULT FALSE,
 
-  diet_plan TEXT NULL,
-  exercise_plan TEXT NULL,
-  medical_guidance TEXT NULL,
-
-  plan_status VARCHAR(10) DEFAULT 'active',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
