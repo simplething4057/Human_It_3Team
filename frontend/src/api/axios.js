@@ -7,13 +7,15 @@ const axiosInstance = axios.create({
     baseURL: API_BASE_URL
 });
 
-// Automatically add token to headers if it exists
+// Automatically add token and content-type
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('carelink_token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+        // Force json content type
+        config.headers['Content-Type'] = 'application/json';
         return config;
     },
     (error) => {
