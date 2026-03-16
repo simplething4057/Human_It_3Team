@@ -37,10 +37,12 @@ const dbConfig = require('./config/db');
 app.get('/.netlify/functions/api/debug-db', async (req, res) => {
     try {
         const [rows] = await dbConfig.query('SELECT current_database(), current_user');
+        const [userCheck] = await dbConfig.query('SELECT COUNT(*) as count FROM users WHERE LOWER(email) = LOWER($1)', ['test@test.com']);
         res.json({ 
             success: true, 
             isPostgres: dbConfig.isPostgres,
             info: rows[0],
+            test_user_count: userCheck[0].count,
             has_db_url: !!process.env.DATABASE_URL
         });
     } catch (err) {
