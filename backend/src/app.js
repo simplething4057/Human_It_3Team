@@ -18,7 +18,18 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serverless Body Parser Fix
 app.use((req, res, next) => {
-    if (!req.body || Object.keys(req.body).length === 0) {
+    // 1. Handle indexed objects (e.g., { 0: '{', 1: '"', ... })
+    if (req.body && !req.body.email && req.body[0] !== undefined) {
+        try {
+            const rawBody = Object.values(req.body).join('');
+            req.body = JSON.parse(rawBody);
+        } catch (e) {
+            console.error('Failed to parse reconstructed body:', e.message);
+        }
+    }
+
+    // 2. Fallback to rawBody if still empty or not parsed correctly
+    if (!req.body || Object.keys(req.body).length === 0 || (!req.body.email && !req.body.password)) {
         if (req.rawBody) {
             try {
                 req.body = JSON.parse(req.rawBody.toString());
