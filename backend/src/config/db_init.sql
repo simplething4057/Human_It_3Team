@@ -11,8 +11,23 @@ CREATE TABLE IF NOT EXISTS users (
   phone VARCHAR(20) NULL, -- 연락처
   email_verified TINYINT(1) DEFAULT 0, -- 이메일 인증 여부
   marketing_agreed TINYINT(1) DEFAULT 0, -- 마케팅 수신 동의 여부
+  
+  -- [보안/편의 추가]
+  login_option ENUM('none','keep','save_id') DEFAULT 'none', -- 아이디 저장/로그인 유지 옵션
+  last_login_ip VARCHAR(45) NULL, -- 마지막 로그인 접속 IP
+  email_change_token VARCHAR(6) NULL, -- 이메일/OTP 인증 코드
+  email_token_expires DATETIME NULL, -- 인증 코드 만료 시간
+  
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- [보안] 로그아웃된 Refresh Token 블랙리스트 관리 테이블
+CREATE TABLE IF NOT EXISTS blacklisted_tokens (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  token_hash VARCHAR(64) NOT NULL UNIQUE, -- SHA-256 해시된 토큰
+  expires_at DATETIME NOT NULL, -- 토큰 원래 만료 시간
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- [2] health_data: 건강검진 원시 수치 데이터 저장 테이블 (OCR 추출 결과 포함)

@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -12,7 +13,13 @@ const reportRoutes = require('./routes/reportRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
 const actionPlanRoutes = require('./routes/actionPlanRoutes');
 
-app.use(cors());
+// [보안] CORS 설정 - credentials 허용
+app.use(cors({
+    origin: true, // 로컬 개발 및 배포 환경 대응
+    credentials: true
+}));
+
+app.use(cookieParser());
 app.use(express.json({ type: '*/*' })); // Try parsing everything as JSON
 app.use(express.urlencoded({ extended: true }));
 
