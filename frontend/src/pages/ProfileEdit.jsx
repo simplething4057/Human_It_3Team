@@ -178,7 +178,20 @@ export default function ProfileEdit() {
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">새 이메일 주소</label>
                   <div className="flex gap-2">
                     <input type="email" placeholder="new-email@health.com" className="flex-1 bg-slate-50 border border-slate-200 rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-teal-500 font-medium transition-all" />
-                    <button type="button" className="px-6 bg-teal-50 text-teal-600 font-black rounded-2xl border border-teal-100 hover:bg-teal-100 transition-all text-sm">인증 요청</button>
+                    <button 
+                      type="button" 
+                      onClick={async () => {
+                        try {
+                          await axios.post('/api/auth/signup/request-otp', { email: document.querySelector('input[type="email"][placeholder="new-email@health.com"]').value });
+                          alert('인증코드가 발송되었습니다. 터미널을 확인해주세요.');
+                        } catch (err) {
+                          alert(err.response?.data?.message || '인증번호 발송 실패');
+                        }
+                      }}
+                      className="px-6 bg-teal-50 text-teal-600 font-black rounded-2xl border border-teal-100 hover:bg-teal-100 transition-all text-sm"
+                    >
+                      인증 요청
+                    </button>
                   </div>
                 </div>
               </div>
