@@ -5,22 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-<<<<<<< HEAD
     "build": "vite build",
     "preview": "vite preview",
-=======
     "build": "vite build frontend --config frontend/vite.config.ts",
     "preview": "vite preview frontend",
->>>>>>> c19dcdb (4.4 chore: 패키지 의존성 최신화 및 브랜치 변경사항 동기화)
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
-<<<<<<< HEAD
     "@google/generative-ai": "^0.24.1",
-=======
->>>>>>> c19dcdb (4.4 chore: 패키지 의존성 최신화 및 브랜치 변경사항 동기화)
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
     "axios": "^1.13.6",
