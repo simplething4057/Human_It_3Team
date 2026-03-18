@@ -1,15 +1,17 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const axios = require('axios');
 const fs = require('fs');
 
 /**
- * API 키 분산 관리 시스템
+ * API 키 분산 관리 시스템 (통합 버전)
  * 
  * 원리:
  * - 환경변수에서 쉼표로 구분된 여러 Gemini API 키를 읽음
- * - 매 요청마다 다음 API 키로 순환 전환
- * - 각 키의 월별 토큰 할당량을 분산 사용
+ * - 매 요청마다 다음 API 키로 순환 전환 (SDK 및 REST API 모두)
+ * - 각 키의 월별 토큰 할당량을 분산 사용 (45,000 TPM ÷ 3 키 = 15,000 TPM per key)
+ * - REST API fallback 지원
  * 
- * 예: 3개 키 = 할당량 3배 증가 (45,000 TPM)
+ * 모델: gemini-2.5-flash (비용 최적화)
  */
 
 // 환경변수에서 API 키 배열 파싱
@@ -20,25 +22,62 @@ if (apiKeys.length === 0) {
     throw new Error('❌ GEMINI_API_KEYS 또는 GEMINI_API_KEY가 설정되어 있지 않습니다.');
 }
 
-console.log(`✅ Gemini API 키 ${apiKeys.length}개 로드됨 (토큰 할당량 ${apiKeys.length}배)`);
+console.log(`✅ Gemini API 키 ${apiKeys.length}개 로드됨 (토큰 할당량 분산: 45,000 TPM)`);
 
 // 현재 사용할 API 키의 인덱스 (0부터 시작)
 let currentKeyIndex = 0;
 
 /**
- * 다음 API 키를 반환하고 인덱스 업데이트
- * 순환: 0 → 1 → 2 → 0 → 1 → 2 ...
+ * 다음 API 키를 반환하고 인덱스 업데이트 (순환)
+ * SDK 호출 용도
  */
 function getNextGenAI() {
     const apiKey = apiKeys[currentKeyIndex];
     const keyPreview = apiKey.substring(0, 10) + '...' + apiKey.substring(apiKey.length - 5);
     
-    console.log(`🔄 API 키 사용: ${keyPreview} (${currentKeyIndex + 1}/${apiKeys.length})`);
+    console.log(`🔄 SDK API 키 사용: ${keyPreview} (${currentKeyIndex + 1}/${apiKeys.length})`);
     
-    // 다음 요청을 위해 인덱스 증가 (순환)
     currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
-    
     return new GoogleGenerativeAI(apiKey);
+}
+
+/**
+ * REST API를 사용한 Gemini 호출 (Fallback용)
+ */
+async function callGeminiREST(message, history = [], systemInstruction = '') {
+    const apiKey = apiKeys[currentKeyIndex];
+    const keyPreview = apiKey.substring(0, 10) + '...' + apiKey.substring(apiKey.length - 5);
+    
+    console.log(`🔄 REST API 키 사용: ${keyPreview} (${currentKeyIndex + 1}/${apiKeys.length})`);
+    currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
+
+    const URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    const contents = [
+        ...history.map(h => ({
+            role: h.role === 'user' ? 'user' : 'model',
+            parts: [{ text: String(h.content || h.message || '') }]
+        })),
+        {
+            role: 'user',
+            parts: [{ text: message }]
+        }
+    ];
+
+    const body = {
+        contents,
+        systemInstruction: systemInstruction ? {
+            parts: [{ text: systemInstruction }]
+        } : undefined
+    };
+
+    try {
+        const response = await axios.post(URL, body);
+        return response.data.candidates[0].content.parts[0].text;
+    } catch (err) {
+        console.error("Gemini REST API Error:", err.response?.data || err.message);
+        throw err;
+    }
 }
 
 // Helper to handle both file path (local) and buffer (serverless)
@@ -53,9 +92,9 @@ function fileToGenerativePart(path, buffer, mimeType) {
 }
 
 exports.analyzeHealthReport = async (fileData, mimeType, userInfo) => {
-    // 다음 API 키로 Gemini 클라이언트 생성
+    // 다음 API 키로 Gemini 클라이언트 생성 (SDK 사용)
     const genAI = getNextGenAI();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     // fileData can be a path (string) or a buffer
     const isPath = typeof fileData === 'string';
@@ -131,10 +170,6 @@ exports.analyzeHealthReport = async (fileData, mimeType, userInfo) => {
 };
 
 exports.chatHealthConsultation = async (history, message, healthContext) => {
-    // 다음 API 키로 Gemini 클라이언트 생성
-    const genAI = getNextGenAI();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
     const contextPrompt = `
 너는 CareLink의 전문 건강 상담 AI다. 
 사용자의 건강검진 데이터를 기반으로 친절하고 전문적인 의학적 조언을 제공하라.
@@ -155,23 +190,32 @@ exports.chatHealthConsultation = async (history, message, healthContext) => {
 4. 답변은 한국어로 하라.
 `;
 
-    const chat = model.startChat({
-        history: history.map(h => ({
-            role: h.role === 'user' ? 'user' : 'model',
-            parts: [{ text: h.content }]
-        })),
-        systemInstruction: contextPrompt
-    });
+    try {
+        // REST API를 먼저 시도 (더 빠름)
+        return await callGeminiREST(message, history, contextPrompt);
+    } catch (error) {
+        console.error("REST API Error:", error.message);
+        // SDK Fallback: REST API 실패 시 SDK 사용
+        const genAI = getNextGenAI();
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const chat = model.startChat({
+            history: history.map(h => ({
+                role: h.role === 'user' ? 'user' : 'model',
+                parts: [{ text: h.content }]
+            })),
+            systemInstruction: contextPrompt
+        });
 
-    const result = await chat.sendMessage(message);
-    const response = await result.response;
-    return response.text();
+        const result = await chat.sendMessage(message);
+        const response = await result.response;
+        return response.text();
+    }
 };
 
 exports.generateActionPlan = async (healthContext) => {
-    // 다음 API 키로 Gemini 클라이언트 생성
+    // 다음 API 키로 Gemini 클라이언트 생성 (SDK 사용)
     const genAI = getNextGenAI();
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     const prompt = `
 사용자의 건강검진 데이터를 기반으로 다음 일주일 동안 실천할 구체적인 '액션 플랜(Action Plan)' 3가지를 생성하라.
