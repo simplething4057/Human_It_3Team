@@ -12,6 +12,7 @@ const authRoutes = require('./routes/authRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
 const actionPlanRoutes = require('./routes/actionPlanRoutes');
+const reviewRoutes = require('./routes/reviewRoutes'); //리뷰 담당 라우터 불러오기
 
 // [보안] CORS 설정 - credentials 허용
 app.use(cors({
@@ -87,6 +88,7 @@ apiRouter.use('/auth', authRoutes);
 apiRouter.use('/reports', reportRoutes);
 apiRouter.use('/chatbot', chatbotRoutes);
 apiRouter.use('/action-plans', actionPlanRoutes);
+apiRouter.use('/reviews', reviewRoutes); // '/api/reviews' 경로가 호출되면 신규 라우터로 연결
 
 // Mount the API router at both common prefixes
 app.use('/api', apiRouter);
