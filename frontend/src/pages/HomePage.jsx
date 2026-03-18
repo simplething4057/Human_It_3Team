@@ -16,27 +16,53 @@ export default function HomePage() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
-  const [showReviewModal, setShowReviewModal] = useState(false); // 팝업 보임/숨김
-  const [rating, setRating] = useState(0); // 선택된 별점 (1~5)
+  const [showReviewModal, setShowReviewModal] = useState(false); // 리뷰 팝업 상태
+  const [rating, setRating] = useState(0); // 선택된 별점
   const [reviewText, setReviewText] = useState(''); // 작성된 리뷰 내용
+  const [publicReviews, setPublicReviews] = useState([]); // 화면에 노출할 승인된 리뷰 리스트
+
+  // 화면 진입 시 승인된 공개 리뷰 데이터 4개를 가져옵니다.
+  useEffect(() => {
+    const fetchPublicReviews = async () => {
+      try {
+        const response = await api.get('/reviews/public');
+        if (response.data.success) {
+          setPublicReviews(response.data.reviews);
+        }
+      } catch (error) {
+        console.error("공개 리뷰 불러오기 실패:", error);
+      }
+    };
+    fetchPublicReviews();
+  }, []);
 
   // 로그인 상태일 때 임시로 팝업 띄우기 (페이지 진입 0.5초 후)
-  // TODO: 나중에 이 부분을 '업로드 후 1시간 뒤' 조건으로 변경할 예정입니다.
   useEffect(() => {
-    // 브라우저 임시 저장소에서 'hasReviewed' 기록이 있는지 확인
-    const hasReviewed = localStorage.getItem('hasReviewed');
+    const checkReviewStatus = async () => {
+      if (isAuthenticated && user) {
+        try {
+          // 1. 해당 사용자의 이메일을 기반으로 DB에 리뷰가 있는지 백엔드에 물어봅니다.
+          const response = await api.get(`/reviews/check?email=${user.email}`);
+          const data = response.data;
 
-    // 로그인 상태(isAuthenticated)이고, 리뷰를 아직 안 썼을(!hasReviewed) 때만 실행
-    if (isAuthenticated && !hasReviewed) {
-      const timer = setTimeout(() => {
-        setShowReviewModal(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isAuthenticated]);
+          // 2. 백엔드에서 '아직 리뷰를 비작성함(!hasReviewed)' 응답이 오면 팝업을 띄웁니다.
+          if (data.success && !data.hasReviewed) {
+            const timer = setTimeout(() => {
+              setShowReviewModal(true);
+            }, 500);
+            return () => clearTimeout(timer);
+          }
+        } catch (error) {
+          console.error("리뷰 작성 상태 확인 중 에러 발생:", error);
+        }
+      }
+    };
 
-  // 리뷰 제출 함수 (현재는 콘솔 확인용, 추후 DB 연동)
-  const handleReviewSubmit = () => {
+    checkReviewStatus();
+  }, [isAuthenticated, user]);
+
+  // 리뷰 제출 함수 (백엔드 DB 전송)
+  const handleReviewSubmit = async () => {
     if (rating === 0) {
       alert("별점을 선택해주세요!");
       return;
@@ -45,20 +71,28 @@ export default function HomePage() {
       alert("리뷰 내용을 입력해주세요!");
       return;
     }
-    
-    console.log("제출할 별점:", rating);
-    console.log("제출할 리뷰 내용:", reviewText);
-    
-    // TODO: MariaDB 데이터 전송 API 호출 (나중에 추가)
-    
-    alert("소중한 리뷰가 등록되었습니다!");
-    
-    // ⭐ 핵심! 성공적으로 리뷰를 남기면 브라우저에 'hasReviewed' 도장을 쾅 찍어줍니다.
-    localStorage.setItem('hasReviewed', 'true'); 
-    
-    setShowReviewModal(false);
-    setRating(0);
-    setReviewText('');
+
+    try {
+      // 3. 백엔드 서버로 데이터를 POST 전송합니다.
+      const response = await api.post('/reviews', {
+        email: user?.email,
+        name: user?.name,
+        rating: rating,
+        review_text: reviewText
+      });
+
+      if (response.data.success || response.status === 201 || response.status === 200) {
+        alert("소중한 리뷰가 등록되었습니다!");
+        setShowReviewModal(false);
+        setRating(0);
+        setReviewText('');
+      } else {
+        alert("리뷰 등록에 실패했습니다. 다시 시도해주세요.");
+      }
+    } catch (error) {
+      console.error('리뷰 서버 전송 에러 발생:', error);
+      alert('서버와 연결할 수 없습니다.');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -108,7 +142,7 @@ export default function HomePage() {
               ) : (
                 <>
                   <Link to="/login" className="text-slate-600 hover:text-teal-600 transition-colors font-semibold">로그인</Link>
-                  <Link to="/signup" className="bg-teal-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-teal-700 transition-all shadow-md">
+                  <Link to="/upload" className="bg-teal-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-teal-700 transition-all shadow-md">
                     시작하기
                   </Link>
                 </>
@@ -208,7 +242,7 @@ export default function HomePage() {
                 </p>
                 <div className="flex justify-center gap-4 flex-wrap">
                   <Link
-                    to={isAuthenticated ? "/upload" : "/signup"}
+                    to="/upload"
                     className="bg-teal-500 text-white px-8 py-4 rounded-full font-bold hover:bg-teal-600 transition-all shadow-lg"
                   >
                     건강 분석 시작하기
@@ -229,19 +263,33 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { name: "김OO", text: "드디어 건강검진 결과를 이해했어요! AI의 설명이 정말 명확하고 도움이 되었습니다." },
-              { name: "이XX", text: "인터페이스가 현대적이고 사용하기 쉽네요. 모든 분들께 강력히 추천합니다." },
-              { name: "박YY", text: "더 이상 의학 용어를 검색할 필요가 없어요. CareLink가 즉시 모든 것을 해결해 줍니다." },
-              { name: "최ZZ", text: "내 건강 관리에 더 자신감이 생겼어요. 정말 혁신적인 도구입니다." }
-            ].map((review, i) => (
-              <div key={i} className="bg-white p-8 rounded-xl shadow-sm border border-orange-50 hover:shadow-md transition-shadow">
-                <div className="flex text-amber-400 mb-4">
-                  {[...Array(5)].map((_, j) => <Star key={j} className="w-4 h-4 fill-current" />)}
+              { name: "김OO", text: "드디어 건강검진 결과를 이해했어요! AI의 설명이 정말 명확하고 도움이 되었습니다.", rating: 5 },
+              { name: "이XX", text: "인터페이스가 현대적이고 사용하기 쉽네요. 모든 분들께 강력히 추천합니다.", rating: 5 },
+              { name: "박YY", text: "더 이상 의학 용어를 검색할 필요가 없어요. CareLink가 즉시 모든 것을 해결해 줍니다.", rating: 5 },
+              { name: "최ZZ", text: "내 건강 관리에 더 자신감이 생겼어요. 정말 혁신적인 도구입니다.", rating: 5 }
+            ].map((defaultReview, i) => {
+              // 백엔드에서 가져온 진짜 리뷰가 해당 인덱스(i)에 있으면 덮어씌움. 이름은 무조건 '익명'
+              const reviewData = publicReviews[i] 
+                ? { name: "익명", text: publicReviews[i].content, rating: publicReviews[i].rating }
+                : defaultReview;
+                
+              return (
+                <div key={i} className="bg-white p-8 rounded-xl shadow-sm border border-orange-50 hover:shadow-md transition-shadow flex flex-col justify-between">
+                  <div>
+                    <div className="flex text-amber-400 mb-4">
+                      {[1, 2, 3, 4, 5].map((starValue) => (
+                        <Star 
+                          key={starValue} 
+                          className={`w-4 h-4 ${starValue <= reviewData.rating ? 'fill-current' : 'fill-transparent text-slate-300'}`} 
+                        />
+                      ))}
+                    </div>
+                    <p className="text-slate-600 mb-6 italic leading-relaxed">"{reviewData.text}"</p>
+                  </div>
+                  <p className="font-extrabold text-slate-900">- {reviewData.name}</p>
                 </div>
-                <p className="text-slate-600 mb-6 italic leading-relaxed">"{review.text}"</p>
-                <p className="font-extrabold text-slate-900">- {review.name}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -262,9 +310,8 @@ export default function HomePage() {
                 <Star
                   key={starValue}
                   onClick={() => setRating(starValue)}
-                  className={`w-10 h-10 transition-colors cursor-pointer ${
-                    starValue <= rating ? "fill-amber-400 text-amber-400" : "fill-transparent text-slate-300"
-                  }`}
+                  className={`w-10 h-10 transition-colors cursor-pointer ${starValue <= rating ? "fill-amber-400 text-amber-400" : "fill-transparent text-slate-300"
+                    }`}
                 />
               ))}
             </div>
@@ -358,27 +405,27 @@ export default function HomePage() {
             <div>
               <h3 className="text-2xl font-extrabold mb-8 text-slate-900">문의하기</h3>
               <form className="space-y-4" onSubmit={handleSubmit}>
-              <input 
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg py-4 px-4 focus:ring-2 focus:ring-teal-500 outline-none" 
-                placeholder="이메일" 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)} // 입력값 연결
-              />
-              <textarea 
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg py-4 px-4 focus:ring-2 focus:ring-teal-500 outline-none" 
-                placeholder="메시지" 
-                rows={4}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)} // 입력값 연결
-              ></textarea>
-              <button
-                type="submit" // button -> submit으로 변경
-                className="w-full bg-red-500 hover:bg-red-600 text-white font-extrabold py-4 rounded-lg shadow-lg transition-all transform hover:-translate-y-1"
-              >
-                메시지 보내기
-              </button>
-            </form>
+                <input
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg py-4 px-4 focus:ring-2 focus:ring-teal-500 outline-none"
+                  placeholder="이메일"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)} // 입력값 연결
+                />
+                <textarea
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg py-4 px-4 focus:ring-2 focus:ring-teal-500 outline-none"
+                  placeholder="메시지"
+                  rows={4}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)} // 입력값 연결
+                ></textarea>
+                <button
+                  type="submit" // button -> submit으로 변경
+                  className="w-full bg-red-500 hover:bg-red-600 text-white font-extrabold py-4 rounded-lg shadow-lg transition-all transform hover:-translate-y-1"
+                >
+                  메시지 보내기
+                </button>
+              </form>
             </div>
           </div>
           <div className="pt-8 border-t border-slate-100 flex flex-col items-center gap-3 text-slate-400 text-sm font-medium">
