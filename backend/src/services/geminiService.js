@@ -3,17 +3,24 @@ const fs = require('fs');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-function fileToGenerativePart(path, mimeType) {
+// Helper to handle both file path (local) and buffer (serverless)
+function fileToGenerativePart(path, buffer, mimeType) {
+  const data = path ? fs.readFileSync(path) : buffer;
   return {
     inlineData: {
-      data: Buffer.from(fs.readFileSync(path)).toString("base64"),
+      data: Buffer.from(data).toString("base64"),
       mimeType
     },
   };
 }
 
-exports.analyzeHealthReport = async (filePath, mimeType, userInfo) => {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+exports.analyzeHealthReport = async (fileData, mimeType, userInfo) => {
+    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+    
+    // fileData can be a path (string) or a buffer
+    const isPath = typeof fileData === 'string';
+    const filePath = isPath ? fileData : null;
+    const fileBuffer = isPath ? null : fileData;
 
     const prompt = `
 너는 CareLink의 AI 건강 분석 엔진이다.
@@ -69,7 +76,7 @@ exports.analyzeHealthReport = async (filePath, mimeType, userInfo) => {
 결과는 반드시 유효한 JSON 형식이어야 한다.
 `;
 
-    const imagePart = fileToGenerativePart(filePath, mimeType);
+    const imagePart = fileToGenerativePart(filePath, fileBuffer, mimeType);
 
     const result = await model.generateContent([prompt, imagePart]);
     const response = await result.response;
@@ -84,7 +91,7 @@ exports.analyzeHealthReport = async (filePath, mimeType, userInfo) => {
 };
 
 exports.chatHealthConsultation = async (history, message, healthContext) => {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
     const contextPrompt = `
 너는 CareLink의 전문 건강 상담 AI다. 
@@ -120,7 +127,7 @@ exports.chatHealthConsultation = async (history, message, healthContext) => {
 };
 
 exports.generateActionPlan = async (healthContext) => {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
 
     const prompt = `
 사용자의 건강검진 데이터를 기반으로 다음 일주일 동안 실천할 구체적인 '액션 플랜(Action Plan)' 3가지를 생성하라.
