@@ -10,6 +10,7 @@ import ActionPlanPage from './pages/ActionPlanPage';
 import HealthReport from './pages/HealthReport';
 import ProfileEdit from './pages/ProfileEdit';
 import ProtectedRoute from './components/ProtectedRoute';
+import Policy from "./pages/Policy";
 
 function App() {
   return (
@@ -49,6 +50,8 @@ function App() {
               <ActionPlanPage />
             </ProtectedRoute>
           } />
+          <Route path="/policy/terms" element={<Policy />} />
+          <Route path="/policy/privacy" element={<Policy />} />
         </Routes>
       </Router>
     </AuthProvider>

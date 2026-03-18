@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build frontend --config frontend/vite.config.ts",
-    "preview": "vite preview frontend",
+    "build": "vite build",
+    "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit"
   },
@@ -14,10 +14,9 @@
     "@google/genai": "^1.29.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
-    "axios": "^1.13.6",
     "dotenv": "^17.2.3",
     "express": "^4.22.1",
-    "framer-motion": "^12.37.0",
+    "framer-motion": "^12.38.0",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "react": "^19.0.0",
